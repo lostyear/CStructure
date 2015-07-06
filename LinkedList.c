@@ -30,12 +30,18 @@ _Bool LinkedListIsEmpty(LinkedList *list) {
 LinkedListNode *LinkedListAddFirst(LinkedList *list, void *value) {
 	LinkedListNode *newNode = (LinkedListNode *)malloc(sizeof(LinkedListNode));
 	newNode->front = NULL;
-	list->head = newNode;
 	newNode->next = list->head;
 	newNode->data = value;
+	if (list->head != NULL)
+		list->head->front = newNode;
+	list->head = newNode;
 	list->length++;
 	if (list->tail == NULL) {
 		list->tail = newNode;
+	}
+	if (list->length == 2) {
+		list->head->next = list->tail;
+		list->tail->front = list->head;
 	}
 
 	return newNode;
@@ -44,33 +50,49 @@ LinkedListNode *LinkedListAddLast(LinkedList *list, void *value) {
 	LinkedListNode *newNode = (LinkedListNode *)malloc(sizeof(LinkedListNode));
 	newNode->next = NULL;
 	newNode->front = list->tail;
-	list->tail = newNode;
 	newNode->data = value;
+	if (list->tail != NULL)
+		list->tail->next = newNode;
+	list->tail = newNode;
 	list->length++;
 	if (list->head == NULL) {
 		list->head = newNode;
+	}
+	if (list->length == 2) {
+		list->head->next = list->tail;
+		list->tail->front = list->head;
 	}
 
 	return newNode;
 }
 
 
-//TODO: This two add function Does NOT consider the node provided is the head or tail
+//TODO: This two add function Does NOT consider the node provided is null
 LinkedListNode *LinkedListAddAfter(LinkedList *list, LinkedListNode *node, void *value) {
 	LinkedListNode *newNode = (LinkedListNode *)malloc(sizeof(LinkedListNode));
+	newNode->data = value;
 	newNode->front = node;
 	newNode->next = node->next;
-	newNode->next->front = newNode;
+	if (newNode->next != NULL)
+		newNode->next->front = newNode;
 	node->next = newNode;
+	list->length++;
+	if (node == list->tail)
+		list->tail = newNode;
 
 	return newNode;
 }
 LinkedListNode *LinkedListAddBefore(LinkedList *list, LinkedListNode *node, void *value) {
 	LinkedListNode *newNode = (LinkedListNode *)malloc(sizeof(LinkedListNode));
+	newNode->data = value;
 	newNode->next = node;
 	newNode->front = node->front;
-	newNode->front->next = newNode;
+	if (newNode->front != NULL)
+		newNode->front->next = newNode;
 	node->front = newNode;
+	list->length++;
+	if (node == list->head)
+		list->head = newNode;
 
 	return newNode;
 }
@@ -79,17 +101,27 @@ LinkedListNode *LinkedListAddBefore(LinkedList *list, LinkedListNode *node, void
 void LinkedListClear(LinkedList *list) {
 	LinkedListNode *p = list->head;
 	LinkedListNode *q = NULL;
-	while (p) {
+	while (p != NULL) {
 		q = p->next;
 		free(p);
 		p = q;
 	}
+	list->head = NULL;
+	list->tail = NULL;
+	list->length = 0;
 }
 
 _Bool LinkedListRemove(LinkedList *list, LinkedListNode *node) {
 	//TODO: What if this node not in this List?
-	node->next->front = node->front;
-	node->front->next = node->next;
+	if (node->next == NULL)
+		list->tail = node->front;
+	else
+		node->next->front = node->front;
+	if (node->front == NULL)
+		list->head = node->next;
+	else
+		node->front->next = node->next;
+	list->length--;
 
 	return true;
 }
@@ -103,6 +135,7 @@ void LinkedListRemoveFirst(LinkedList *list) {
 	if (list->head == NULL) {
 		list->tail = NULL;
 	}
+	list->length--;
 
 	free(p);
 }
@@ -115,6 +148,7 @@ void LinkedListRemoveLast(LinkedList *list) {
 	if (list->tail == NULL) {
 		list->head = NULL;
 	}
+	list->length--;
 
 	free(p);
 }
@@ -123,17 +157,17 @@ void LinkedListRemoveLast(LinkedList *list) {
 //O(n)
 _Bool LinkedListContains(LinkedList *list, void *value) {
 	LinkedListNode *p = list->head;
-	while (p) {
-		if (p->data == value) 
+	while (p != NULL) {
+		if (p->data == value)
 			return true;
-		
+
 		p = p->next;
 	}
 	return false;
 }
 LinkedListNode *LinkedListFind(LinkedList *list, void *value) {
 	LinkedListNode *p = list->head;
-	while (p) {
+	while (p != NULL) {
 		if (p->data == value)
 			return p;
 
@@ -143,7 +177,7 @@ LinkedListNode *LinkedListFind(LinkedList *list, void *value) {
 }
 LinkedListNode *LinkedListFindLast(LinkedList *list, void *value) {
 	LinkedListNode *p = list->tail;
-	while (p) {
+	while (p != NULL) {
 		if (p->data == value)
 			return p;
 
