@@ -121,7 +121,35 @@ void LinkedListRemoveLast(LinkedList *list) {
 
 //TODO: find a way that can conpare the real value, not just address
 //O(n)
-_Bool LinkedListContains(LinkedList *list, void *value);
-LinkedListNode *LinkedListFind(LinkedList *list, void *value);
-LinkedListNode *LinkedListFindLast(LinkedList *list, void *value);
+_Bool LinkedListContains(LinkedList *list, void *value) {
+	LinkedListNode *p = list->head;
+	while (p) {
+		if (p->data == value) 
+			return true;
+		
+		p = p->next;
+	}
+	return false;
+}
+LinkedListNode *LinkedListFind(LinkedList *list, void *value) {
+	LinkedListNode *p = list->head;
+	while (p) {
+		if (p->data == value)
+			return p;
+
+		p = p->next;
+	}
+	return p;
+}
+LinkedListNode *LinkedListFindLast(LinkedList *list, void *value) {
+	LinkedListNode *p = list->tail;
+	while (p) {
+		if (p->data == value)
+			return p;
+
+		p = p->front;
+	}
+
+	return p;
+}
 LinkedListNode *LinkedListCopyTo(LinkedList *list, void *value);
